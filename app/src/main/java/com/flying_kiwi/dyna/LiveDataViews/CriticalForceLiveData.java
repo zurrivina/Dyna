@@ -2,6 +2,7 @@ package com.flying_kiwi.dyna.LiveDataViews;
 
 import android.app.Activity;
 import android.graphics.Color;
+import android.media.ToneGenerator;
 import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.util.Log;
@@ -53,6 +54,9 @@ public class CriticalForceLiveData extends BaseLiveDataView {
         } else {
             timeLimit = 7000;
         }
+
+        toneGenerator = new ToneGenerator(android.media.AudioManager.STREAM_ALARM, 100);
+
         initializeStartStopSaveExportButtons(
                 view.findViewById(R.id.btnCriticalStart),
                 view.findViewById(R.id.btnCriticalStop),
@@ -94,6 +98,11 @@ public class CriticalForceLiveData extends BaseLiveDataView {
     int timer = 0;
     boolean isWorking = false;
     CountDownTimer countDownTimer;
+    private ToneGenerator toneGenerator;
+    private boolean tonePlayedForSecond = false;
+    private boolean tonePlayedForSetEnd = false;
+    private boolean tonePlayedForFinish = false;
+    private int currentRestWorkPos = -1;
     private void startTimer() {
         /*   rest = even; work = odd;
              I couldn't figure out the math so this is how I did it
@@ -125,19 +134,37 @@ public class CriticalForceLiveData extends BaseLiveDataView {
                 if(timer > restWork.get(restWorkPos)) {
                     restWorkPos++;
                     isWorking = !isWorking;
+                    if(session.isSound() && toneGenerator != null) {
+                        toneGenerator.startTone(ToneGenerator.TONE_PROP_BEEP);
+                    }
+                    tonePlayedForSecond = false;
+                    tonePlayedForSetEnd = false;
                     if(isWorking){
                         repNum = (++repNum) % session.getNumReps();
-                        if(repNum == 1) dc.startCollecting();
-//                        dc.startCollecting();
+                        if(repNum == 1) {
+                            dc.startCollecting();
+                        }
                     } else {
-//                        dc.stopCollecting();
+                        if(session.getRestTime() > 3) {
+                            currentRestWorkPos = restWorkPos;
+                            tonePlayedForSetEnd = false;
+                        }
                     }
                 }
                 countdownLeft = restWork.get(restWorkPos) - timer + 1;
 
+                if(countdownLeft <= 3 && countdownLeft > 0 && session.isSound() && toneGenerator != null && !tonePlayedForSecond) {
+                    toneGenerator.startTone(ToneGenerator.TONE_PROP_BEEP);
+                    tonePlayedForSecond = true;
+                }
+
+                if(countdownLeft == 0 && !isWorking && currentRestWorkPos == restWorkPos && session.isSound() && toneGenerator != null && !tonePlayedForSetEnd) {
+                    toneGenerator.startTone(ToneGenerator.TONE_PROP_BEEP);
+                    tonePlayedForSetEnd = true;
+                }
+
                 if(countdownLeft <= session.getCountdown()){
                     ((MaterialTextView)view.findViewById(R.id.txtCountdown)).setTextColor(Color.RED);
-                    //TODO: Display larger countdown timer
                 } else {
                     ((MaterialTextView)view.findViewById(R.id.txtCountdown)).setTextColor(Color.BLACK);
                 }
@@ -146,8 +173,10 @@ public class CriticalForceLiveData extends BaseLiveDataView {
 
             @Override
             public void onFinish() {
-                //TODO: Some calculation of critical force.
-                // Save to session, show and set a textbox with the calculation
+                if(session.isSound() && toneGenerator != null && !tonePlayedForFinish) {
+                    toneGenerator.startTone(ToneGenerator.TONE_PROP_BEEP);
+                    tonePlayedForFinish = true;
+                }
                 float[] cfwp = getCFWP();
                 float critForce = cfwp[0];
                 float wp = cfwp[1];
@@ -170,11 +199,16 @@ public class CriticalForceLiveData extends BaseLiveDataView {
     }
 
     private void stopTimer() {
-        countDownTimer.cancel();
+        if(countDownTimer != null) {
+            countDownTimer.cancel();
+        }
+        if(toneGenerator != null) {
+            toneGenerator.release();
+            toneGenerator = null;
+        }
     }
 
-    //TODO: Maybe also show the average graphs at some point idk
-    public float[] getCFWP(){
+    private float[] getCFWP(){
         //Take the last 60 seconds. Compute the average of all values above 50% of max pull
         //You're supposed to calculate std dev but I mean if you're giving it your all then you're
         //pulling as hard as you can as long as you can. If you're not giving it your all then the

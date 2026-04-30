@@ -1,6 +1,8 @@
 package com.flying_kiwi.dyna.LiveDataViews;
 
 import android.graphics.Color;
+import android.media.AudioManager;
+import android.media.ToneGenerator;
 import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.util.Log;
@@ -18,12 +20,14 @@ public class RepeaterLiveData extends BaseLiveDataView {
     int setNum = 0;
     int repNum = 0;
     int countdownLeft = 0;
+    private ToneGenerator toneGen;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         super.onCreateView(inflater,container,savedInstanceState);
         view = inflater.inflate(R.layout.repeater_live_data_fragment,container, false);
 
+        toneGen = new ToneGenerator(AudioManager.STREAM_ALARM, 100);
 
         lineChart = view.findViewById(R.id.lineChartRepeater);
         if(isHistorical) {
@@ -59,6 +63,11 @@ public class RepeaterLiveData extends BaseLiveDataView {
         return view;
     }
 
+    private void playTone() {
+        if(session.isSound() && toneGen != null) {
+            toneGen.startTone(ToneGenerator.TONE_PROP_BEEP);
+        }
+    }
 
     @Override
     public void updateStats() {
@@ -82,14 +91,6 @@ public class RepeaterLiveData extends BaseLiveDataView {
     boolean isWorking = false;
     CountDownTimer countDownTimer;
     private void startTimer() {
-        /*   rest = even; work = odd;
-             I couldn't figure out the math so this is how I did it
-             I made an array of rest/work/rest/work of cumulative times for the entire session
-             duration of the session
-             As the 'int timer' increases if it's above the current position we are at currently at
-             then we know we are in the next block of either rest or work so we can keep track of
-             reps and sets easily. It's such a small calculation that it's negligible.
-        */
         final ArrayList<Integer> restWork = new ArrayList<>();
         restWork.add(session.getCountdown());
         int pos = 1;
@@ -103,6 +104,7 @@ public class RepeaterLiveData extends BaseLiveDataView {
         restWork.remove(restWork.size() - 1);
         countDownTimer = new CountDownTimer((restWork.get(restWork.size() - 1) - timer) * 1000L, 1000) {
             int restWorkPos = 0;
+            int prevRestWorkPos = 0;
             @Override
             public void onTick(long millisUntilFinished) {
                 timer++;
@@ -110,6 +112,8 @@ public class RepeaterLiveData extends BaseLiveDataView {
                 if(timer > restWork.get(restWorkPos)) {
                     restWorkPos++;
                     isWorking = !isWorking;
+                    // Beep en transición work/rest
+                    playTone();
                     if(isWorking){
                         if(setNum == 0) setNum = 1; //To deal with the first set after the initial countdown
                         repNum = (++repNum) % session.getNumReps();
@@ -117,15 +121,22 @@ public class RepeaterLiveData extends BaseLiveDataView {
                     } else {
                         if(timer - restWork.get(restWorkPos) == session.getPauseTime()){
                             setNum++;
+                            // Beep al terminar un set (antes de pause)
+                            playTone();
                         }
                         dc.stopCollecting();
                     }
+                    prevRestWorkPos = restWorkPos;
                 }
                 countdownLeft = restWork.get(restWorkPos) - timer + 1;
 
+                // Beeps rápidos durante la cuenta regresiva inicial (últimos 3 segundos)
+                if(timer <= session.getCountdown() && countdownLeft > 0 && countdownLeft <= 3) {
+                    playTone();
+                }
+
                 if(countdownLeft <= session.getCountdown()){
                     ((MaterialTextView)view.findViewById(R.id.txtCountdown)).setTextColor(Color.RED);
-                    //TODO: Display larger countdown timer
                 } else {
                     ((MaterialTextView)view.findViewById(R.id.txtCountdown)).setTextColor(Color.BLACK);
                 }
@@ -135,11 +146,21 @@ public class RepeaterLiveData extends BaseLiveDataView {
             @Override
             public void onFinish() {
                 dc.stopCollecting();
+                // Beep final de sesión completada
+                if(session.isSound() && toneGen != null) {
+                    toneGen.startTone(ToneGenerator.TONE_PROP_BEEP);
+                }
             }
         }.start();
     }
 
     private void stopTimer() {
-        countDownTimer.cancel();
+        if(countDownTimer != null) {
+            countDownTimer.cancel();
+        }
+        if(toneGen != null) {
+            toneGen.release();
+            toneGen = null;
+        }
     }
 }
