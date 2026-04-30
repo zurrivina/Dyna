@@ -21,8 +21,13 @@ android {
     }
 
     buildTypes {
+        debug {
+            applicationIdSuffix ".dev"
+            versionNameSuffix "-dev"
+            resValue "string", "app_name", "Dyna-dev"
+        }
         release {
-//            isMinifyEnabled = false
+            resValue "string", "app_name", "Dyna"
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
