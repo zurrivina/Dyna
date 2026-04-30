@@ -37,6 +37,9 @@ public class LiveDataView extends BaseLiveDataView {
 
     @Override
     public void updateStats(){
+        if (view == null) {
+            return;
+        }
         ((MaterialTextView)view.findViewById(R.id.txtPeakMax)).setText(session.getSessionMax().toString());
         ((MaterialTextView)view.findViewById(R.id.txtAvg)).setText(String.format("%.2f %s",session.getCurrentAvg(),session.getLatest().isKg()?"kg":"lb"));
         ((MaterialTextView)view.findViewById(R.id.txtCurrent)).setText(session.getLatest().toString());

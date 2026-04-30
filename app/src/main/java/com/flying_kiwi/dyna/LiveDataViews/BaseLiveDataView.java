@@ -43,9 +43,13 @@ public abstract class BaseLiveDataView extends Fragment {
     View view;
 
     Consumer<TimestampedWeight> callback = tsw -> {
-        session.addWeight(tsw);
+        if (session != null) {
+            session.addWeight(tsw);
+        }
+        if (view != null) {
             updateStats();
             displayChart();
+        }
     };
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -63,11 +67,14 @@ public abstract class BaseLiveDataView extends Fragment {
         isHistorical = getArguments().getBoolean("historical", false);
 
         if(!isHistorical) dc = new DataCollector(bluetoothMgr, callback);
-        return null;
+        return super.onCreateView(inflater, container, savedInstanceState);
 
     }
 
     public void setLineLimits(){
+        if (lineChart == null) {
+            return;
+        }
         //TODO: LIGHT/DARK MODE
         YAxis leftAxis = lineChart.getAxisLeft();
         leftAxis.setAxisMaximum(session.getPlotMax() + 10f);
@@ -95,6 +102,9 @@ public abstract class BaseLiveDataView extends Fragment {
     int startIndex = 0;
     ArrayList<Entry> lineChartDataPoints = new ArrayList<>();
     public void displayChart(){
+        if (lineChart == null) {
+            return;
+        }
         if(isHistorical){
             displayHistoricalChart();
             return;
@@ -126,6 +136,9 @@ public abstract class BaseLiveDataView extends Fragment {
     }
 
     public void displayHistoricalChart(){
+        if (lineChart == null) {
+            return;
+        }
         LineData lineData;
         LineDataSet lineDataSet;
         if(!session.getWeights().isEmpty()) {

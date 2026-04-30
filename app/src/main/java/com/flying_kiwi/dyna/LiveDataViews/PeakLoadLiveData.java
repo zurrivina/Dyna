@@ -38,10 +38,16 @@ public class PeakLoadLiveData extends BaseLiveDataView {
 
     @Override
     public void updateStats() {
+        if (view == null) {
+            return;
+        }
         ((TextView)view.findViewById(R.id.txtPeakMax)).setText(session.getSessionMax().toString());
     }
     @Override
     public void displayChart(){
+        if (lineChart == null) {
+            return;
+        }
         //TODO: If units are KG, we need a different formula, one that maxes out at 300
         // https://mycurvefit.com/
         //TODO: If we modify DataCollector to divide readings by 100 we need to remove division here
