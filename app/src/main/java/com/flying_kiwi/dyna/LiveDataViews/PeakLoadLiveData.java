@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.TextView;
 
 import com.flying_kiwi.dyna.R;
@@ -18,16 +19,20 @@ public class PeakLoadLiveData extends BaseLiveDataView {
         super.onCreateView(inflater,container,savedInstanceState);
         view = inflater.inflate(R.layout.peak_load_live_data_fragment,container, false);
         lineChart = view.findViewById(R.id.lineChartPeakData);
+        Button btnStart = view.findViewById(R.id.btnPeakStart);
+        initConnectionIndicator(view, btnStart);
 
         if(isHistorical) {
             displayChart();
             updateStats();
         } else {
             timeLimit = 5000;
+            displayChart();
+            updateStats();
         }
 
         initializeStartStopSaveExportButtons(
-                view.findViewById(R.id.btnPeakStart),
+                btnStart,
                 view.findViewById(R.id.btnPeakStop),
                 view.findViewById(R.id.btnPeakSave),
                 view.findViewById(R.id.btnPeakExport)

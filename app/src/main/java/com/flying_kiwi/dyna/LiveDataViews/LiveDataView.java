@@ -15,9 +15,6 @@ import com.github.mikephil.charting.components.YAxis;
 import com.github.mikephil.charting.data.LineData;
 import com.google.android.material.textview.MaterialTextView;
 
-import java.util.ArrayList;
-import java.util.Objects;
-
 public class LiveDataView extends BaseLiveDataView {
 
     @Override
@@ -26,9 +23,14 @@ public class LiveDataView extends BaseLiveDataView {
         view = inflater.inflate(R.layout.live_data_fragment,container, false);
         initializeButtons();
         lineChart = view.findViewById(R.id.lineChartLiveData);
+        Button btnStart = view.findViewById(R.id.btnLdvStart);
+        initConnectionIndicator(view, btnStart);
         timeLimit = 30000;
         if(isHistorical){
             view.findViewById(R.id.mcvLiveCurrent).setVisibility(View.GONE);
+            displayChart();
+            updateStats();
+        } else {
             displayChart();
             updateStats();
         }
@@ -67,7 +69,7 @@ public class LiveDataView extends BaseLiveDataView {
                 view.findViewById(R.id.btnLdvSave).setEnabled(true);
                 view.findViewById(R.id.btnLdvStart).setEnabled(true);
                 v.setEnabled(false);
-                dc.stopCollecting();
+                dc.stopScanning();
             });
 
             btnSave.setOnClickListener(v -> {
@@ -78,11 +80,7 @@ public class LiveDataView extends BaseLiveDataView {
                 }
             });
             btnReset.setOnClickListener(view -> {
-                //dc.stopCollecting();
-                lineChartDataPoints = new ArrayList<>();
-
                 session = new Session(SessionType.LIVE_DATA);
-                startIndex = 0;
                 lineChart.setData(new LineData());
                 YAxis leftAxis = lineChart.getAxisLeft();
                 leftAxis.setAxisMinimum(-1f);

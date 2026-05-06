@@ -1,6 +1,7 @@
 package com.flying_kiwi.dyna.LiveDataViews;
 
 import android.app.Activity;
+import android.content.res.Configuration;
 import android.graphics.Color;
 import android.media.ToneGenerator;
 import android.os.Bundle;
@@ -9,6 +10,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.TextView;
 
 import com.flying_kiwi.dyna.R;
@@ -30,6 +32,8 @@ public class CriticalForceLiveData extends BaseLiveDataView {
         super.onCreateView(inflater,container,savedInstanceState);
         view = inflater.inflate(R.layout.critical_force_live_data_fragment,container, false);
         lineChart = view.findViewById(R.id.lineChartCritical);
+        Button btnStart = view.findViewById(R.id.btnCriticalStart);
+        initConnectionIndicator(view, btnStart);
 
         if(isHistorical) {
             String unit = session.getLatest().isKg()?"kg":"lb";
@@ -53,6 +57,8 @@ public class CriticalForceLiveData extends BaseLiveDataView {
             updateStats();
         } else {
             timeLimit = 7000;
+            displayChart();
+            updateStats();
         }
 
         toneGenerator = new ToneGenerator(android.media.AudioManager.STREAM_ALARM, 100);
@@ -68,7 +74,7 @@ public class CriticalForceLiveData extends BaseLiveDataView {
             view.findViewById(R.id.btnCriticalExport).setEnabled(true);
             view.findViewById(R.id.btnCriticalSave).setEnabled(true);
             v.setEnabled(false);
-            dc.stopCollecting();
+            dc.stopScanning();
             stopTimer();
         });
         view.findViewById(R.id.btnCriticalStart).setOnClickListener(v -> {
@@ -169,7 +175,9 @@ public class CriticalForceLiveData extends BaseLiveDataView {
                 if(countdownLeft <= session.getCountdown()){
                     ((MaterialTextView)view.findViewById(R.id.txtCountdown)).setTextColor(Color.RED);
                 } else {
-                    ((MaterialTextView)view.findViewById(R.id.txtCountdown)).setTextColor(Color.BLACK);
+                    int nightMode = getResources().getConfiguration().uiMode & Configuration.UI_MODE_NIGHT_MASK;
+                    boolean isDarkMode = (nightMode == Configuration.UI_MODE_NIGHT_YES);
+                    ((MaterialTextView)view.findViewById(R.id.txtCountdown)).setTextColor(isDarkMode ? Color.WHITE : Color.BLACK);
                 }
                 updateStats();
             }
@@ -196,7 +204,7 @@ public class CriticalForceLiveData extends BaseLiveDataView {
                 view.findViewById(R.id.btnCriticalStart).setEnabled(false);
                 view.findViewById(R.id.btnCriticalSave).setEnabled(true);
                 view.findViewById(R.id.btnCriticalExport).setEnabled(true);
-                dc.stopCollecting();
+                dc.stopScanning();
             }
         }.start();
     }

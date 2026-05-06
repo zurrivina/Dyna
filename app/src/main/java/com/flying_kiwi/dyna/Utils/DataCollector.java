@@ -22,22 +22,32 @@ public class DataCollector {
     String deviceName;
     public DataCollector(BluetoothManager bluetoothManager, Consumer<TimestampedWeight> viewCallback) {
         btManager = new BTManager(bluetoothManager);
-        //LiveData view callback
         this.viewCallback = viewCallback;
         this.deviceName = "IF_B7";
-        startScan();
+        startScanning();
     }
 
     private boolean collectingData = false;
     private boolean bleConnectionMode = true;
+    private boolean isDeviceFound = false;
+    private Runnable onDeviceFoundCallback = null;
+
+    public void setOnDeviceFoundCallback(Runnable callback) {
+        this.onDeviceFoundCallback = callback;
+    }
+
+    public boolean isDeviceFound() {
+        return isDeviceFound;
+    }
+
     //ONLY WH-C06 devices named "IF_B7
-    public void startScan(){
+    public void startScanning(){
         if("IF_B7".equals(deviceName)){
             bleConnectionMode = true;
             btManager.startBLEScan(scanCallback);
+            Log.d("DataCollector", "Started BLE scan for device: " + deviceName);
         } else {
             bleConnectionMode = false;
-            //Connect to device, probably earlier than at this point.
             btManager.startReadingBTConnData();
         }
     }
@@ -50,26 +60,30 @@ public class DataCollector {
         byte[] last = new byte[17];
         @Override
         public void onScanResult(int callbackType, ScanResult result) {
+            if (result.getScanRecord() == null) {
+                return;
+            }
+            String deviceName = result.getScanRecord().getDeviceName();
+            if (deviceName == null || !deviceName.equals("IF_B7")) {
+                return;
+            }
+            if (!isDeviceFound && onDeviceFoundCallback != null) {
+                isDeviceFound = true;
+                onDeviceFoundCallback.run();
+            }
             byte[] data = result.getScanRecord().getManufacturerSpecificData(256);
+            if (data == null || data.length < 15) {
+                return;
+            }
 
-
-            if (result.getScanRecord() != null && collectingData) {
+            if (collectingData) {
                 if(data[9] != last[9]){
                     Log.d("Data Last " + collectingData,Arrays.toString(last));
                     Log.d("Data " + collectingData,Arrays.toString(data));
                 }
                 last = data;
-                //byte 10 * 256 + unsigned byte 11 = weight
-                //Byte 9/14 for unit of measurement
-                //kg -> 1,1
-                //lb -> -1 0
-//                Log.d("Data","Accepted data");
-                //TODO: Maybe we should divide by 100 here because that's the real data it's reading
-                // And store in reading what unit the scale is outputting so we can display that too
                 TimestampedWeight reading = new TimestampedWeight((cstu(data[10]) * 256 + cstu(data[11]))/100f,data[14]==1);
                 viewCallback.accept(reading);
-            } else {
-                Log.d("Data","Tossing data");
             }
         }
     };
@@ -80,13 +94,12 @@ public class DataCollector {
         btManager.stopBLEScan(scanCallback);
     }
     public void stopCollecting(){
-        btManager.stopBLEScan(scanCallback);
         collectingData = false;
     }
 
     public void startCollecting(){
-        btManager.startBLEScan(scanCallback);
         collectingData = true;
+        Log.d("DataCollector", "Started collecting data");
     }
     public boolean isCollectingData() {
         return collectingData;
