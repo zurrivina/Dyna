@@ -67,19 +67,17 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void checkAndRequestPermissions() {
-        // Array of required permissions
-        String[] basePermissions = {
-                Manifest.permission.BLUETOOTH,
-                Manifest.permission.BLUETOOTH_ADMIN,
-                Manifest.permission.ACCESS_FINE_LOCATION
-        };
-        ArrayList<String> arrayPermissions = new ArrayList<>(Arrays.asList(basePermissions));
+        ArrayList<String> arrayPermissions = new ArrayList<>();
+        arrayPermissions.add(Manifest.permission.BLUETOOTH);
+        arrayPermissions.add(Manifest.permission.BLUETOOTH_ADMIN);
+        arrayPermissions.add(Manifest.permission.ACCESS_FINE_LOCATION);
+        arrayPermissions.add(Manifest.permission.ACCESS_COARSE_LOCATION);
 
         if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
             arrayPermissions.add(Manifest.permission.BLUETOOTH_SCAN);
+            arrayPermissions.add(Manifest.permission.BLUETOOTH_CONNECT);
         }
 
-        // Check which permissions are not granted
         boolean allPermissionsGranted = true;
         for (String permission : arrayPermissions) {
             if (ContextCompat.checkSelfPermission(this, permission) != PackageManager.PERMISSION_GRANTED) {
@@ -89,7 +87,6 @@ public class MainActivity extends AppCompatActivity {
         }
 
         if (!allPermissionsGranted) {
-            // Request the permissions
             ActivityCompat.requestPermissions(this, arrayPermissions.toArray(new String[0]), REQUEST_BLUETOOTH_PERMISSIONS);
         }
     }

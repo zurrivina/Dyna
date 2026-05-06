@@ -1,15 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
     <com.google.android.material.textview.MaterialTextView
-        android:id="@+id/com.google.android.material.textview.MaterialTextView11"
+        android:id="@+id/tvTitle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Repeaters Settings"
+        android:text="Repeater Settings"
         android:textSize="34sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -17,30 +16,32 @@
 
     <com.google.android.material.button.MaterialButton
         android:id="@+id/btnRepeaterStart"
-        android:layout_width="334dp"
+        android:layout_width="0dp"
         android:layout_height="50dp"
+        android:layout_marginStart="32dp"
+        android:layout_marginEnd="32dp"
+        android:layout_marginBottom="16dp"
         android:text="Start"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
 
     <ScrollView
-        android:layout_width="match_parent"
+        android:layout_width="0dp"
         android:layout_height="0dp"
         android:layout_marginTop="8dp"
         android:layout_marginBottom="8dp"
         app:layout_constraintBottom_toTopOf="@+id/btnRepeaterStart"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/com.google.android.material.textview.MaterialTextView11">
-
+        app:layout_constraintTop_toBottomOf="@+id/tvTitle">
 
         <LinearLayout
-            android:id="@+id/linearLayout4"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical">
 
+            <!-- Preset row -->
             <com.google.android.material.card.MaterialCardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -51,40 +52,37 @@
 
                 <LinearLayout
                     android:layout_width="match_parent"
-                    android:layout_height="57dp"
-                    android:orientation="horizontal">
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="16dp"
+                    android:layout_marginTop="8dp"
+                    android:layout_marginEnd="16dp"
+                    android:layout_marginBottom="8dp"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical">
 
                     <com.google.android.material.textview.MaterialTextView
-                        android:id="@+id/com.google.android.material.textview.MaterialTextView12"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_gravity="center"
-                        android:layout_marginStart="20dp"
+                        android:layout_marginEnd="12dp"
                         android:text="Preset"
                         android:textSize="20sp" />
 
                     <Spinner
                         android:id="@+id/spinRepeaterPreset"
-                        android:layout_width="wrap_content"
-                        android:layout_height="51dp"
-                        android:layout_gravity="center"
-                        android:layout_marginStart="10dp"
-                        android:layout_weight="1"
-                        android:minWidth="100dp"
-                        android:textSize="28sp" />
+                        android:layout_width="0dp"
+                        android:layout_height="48dp"
+                        android:layout_weight="1" />
 
                     <com.google.android.material.button.MaterialButton
                         android:id="@+id/btnRepPresetSave"
-                        android:layout_width="120dp"
-                        android:layout_height="51dp"
-                        android:layout_gravity="center"
-                        android:layout_marginLeft="10dp"
-                        android:layout_weight="1"
-                        android:maxWidth="120dp"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="8dp"
                         android:text="Save" />
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
 
+            <!-- Sets & Reps row -->
             <com.google.android.material.card.MaterialCardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -94,163 +92,61 @@
                 android:layout_marginBottom="4dp">
 
                 <LinearLayout
-                    android:layout_width="187dp"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center"
-                    android:layout_marginStart="20dp"
-                    android:layout_marginTop="4dp"
-                    android:layout_marginEnd="20dp"
-                    android:layout_marginBottom="4dp"
-                    android:orientation="horizontal">
-
-                    <com.google.android.material.textview.MaterialTextView
-                        android:id="@+id/com.google.android.material.textview.MaterialTextView15"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_gravity="center"
-                        android:layout_margin="4dp"
-                        android:text="Sets"
-                        android:textSize="20sp" />
-
-                    <NumberPicker
-                        android:id="@+id/npSets"
-                        android:layout_width="wrap_content"
-                        android:layout_height="65dp"
-                        android:layout_gravity="center"
-                        android:layout_marginStart="20dp"
-                        android:layout_weight="1"
-                        android:scaleX="1.75"
-                        android:scaleY="1.75" />
-
-                </LinearLayout>
-            </com.google.android.material.card.MaterialCardView>
-
-            <com.google.android.material.card.MaterialCardView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="16dp"
-                android:layout_marginTop="4dp"
-                android:layout_marginEnd="16dp"
-                android:layout_marginBottom="4dp">
-                <androidx.constraintlayout.widget.ConstraintLayout
-                    android:id="@+id/constraintLayout"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="4dp"
-                    android:layout_marginBottom="8dp">
-
-                    <com.google.android.material.textview.MaterialTextView
-                        android:id="@+id/com.google.android.material.textview.MaterialTextView2"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Set"
-                        android:textAlignment="center"
-                        android:textSize="20sp"
-                        app:layout_constraintEnd_toEndOf="parent"
-                        app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toTopOf="parent" />
+                    android:layout_margin="12dp"
+                    android:orientation="horizontal"
+                    android:gravity="center">
 
                     <LinearLayout
-                        android:id="@+id/linearLayout2"
-                        android:layout_width="match_parent"
+                        android:layout_width="0dp"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="8dp"
-                        android:orientation="horizontal"
-                        app:layout_constraintEnd_toEndOf="parent"
-                        app:layout_constraintHorizontal_bias="0.409"
-                        app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toBottomOf="@+id/com.google.android.material.textview.MaterialTextView2">
+                        android:layout_weight="1"
+                        android:orientation="vertical"
+                        android:gravity="center">
 
-                        <com.google.android.material.textview.MaterialTextView
-                            android:id="@+id/com.google.android.material.textview.MaterialTextView4"
-                            android:layout_width="0dp"
+                        <com.google.android.material.textfield.TextInputLayout
+                            android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:text="Reps"
-                            android:textAlignment="center"
-                            android:textSize="20sp" />
+                            android:hint="Sets">
 
-                        <com.google.android.material.textview.MaterialTextView
-                            android:id="@+id/com.google.android.material.textview.MaterialTextView5"
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:text="Work"
-                            android:textAlignment="center"
-                            android:textSize="20sp" />
-
-                        <com.google.android.material.textview.MaterialTextView
-                            android:id="@+id/com.google.android.material.textview.MaterialTextView6"
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:text="Rest"
-                            android:textAlignment="center"
-                            android:textSize="20sp" />
+                            <com.google.android.material.textfield.TextInputEditText
+                                android:id="@+id/etSets"
+                                android:layout_width="80dp"
+                                android:layout_height="wrap_content"
+                                android:inputType="number"
+                                android:text="2"
+                                android:textAlignment="center"
+                                android:textSize="20sp" />
+                        </com.google.android.material.textfield.TextInputLayout>
                     </LinearLayout>
 
                     <LinearLayout
-                        android:id="@+id/ll2"
-                        android:layout_width="match_parent"
+                        android:layout_width="0dp"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="4dp"
-                        android:gravity="center"
-                        android:orientation="horizontal"
-                        app:layout_constraintEnd_toEndOf="parent"
-                        app:layout_constraintHorizontal_bias="0.0"
-                        app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toBottomOf="@+id/linearLayout2">
+                        android:layout_weight="1"
+                        android:orientation="vertical"
+                        android:gravity="center">
 
-                        <androidx.constraintlayout.widget.ConstraintLayout
+                        <com.google.android.material.textfield.TextInputLayout
                             android:layout_width="wrap_content"
-                            android:layout_height="65dp"
-                            android:layout_gravity="center|clip_horizontal|clip_vertical"
-                            android:layout_weight="1"
-                            android:clipChildren="true">
+                            android:layout_height="wrap_content"
+                            android:hint="Reps">
 
-                            <NumberPicker
-                                android:id="@+id/npReps"
-                                android:layout_width="match_parent"
-                                android:layout_height="match_parent"
-                                android:scaleX="1.75"
-                                android:scaleY="1.75" />
-                        </androidx.constraintlayout.widget.ConstraintLayout>
-
-                        <androidx.constraintlayout.widget.ConstraintLayout
-                            android:layout_width="wrap_content"
-                            android:layout_height="65dp"
-                            android:layout_gravity="center|clip_horizontal|clip_vertical"
-                            android:layout_weight="1"
-                            android:clipChildren="false">
-
-                            <NumberPicker
-                                android:id="@+id/npWork"
-                                android:layout_width="match_parent"
-                                android:layout_height="match_parent"
-                                android:scaleX="1.75"
-                                android:scaleY="1.75" />
-                        </androidx.constraintlayout.widget.ConstraintLayout>
-
-                        <androidx.constraintlayout.widget.ConstraintLayout
-                            android:layout_width="wrap_content"
-                            android:layout_height="65dp"
-                            android:layout_gravity="center|clip_horizontal|clip_vertical"
-                            android:layout_weight="1"
-                            android:clipChildren="true">
-
-                            <NumberPicker
-                                android:id="@+id/npRest"
-                                android:layout_width="match_parent"
-                                android:layout_height="match_parent"
-                                android:scaleX="1.75"
-                                android:scaleY="1.75" />
-                        </androidx.constraintlayout.widget.ConstraintLayout>
-
+                            <com.google.android.material.textfield.TextInputEditText
+                                android:id="@+id/etReps"
+                                android:layout_width="80dp"
+                                android:layout_height="wrap_content"
+                                android:inputType="number"
+                                android:text="3"
+                                android:textAlignment="center"
+                                android:textSize="20sp" />
+                        </com.google.android.material.textfield.TextInputLayout>
                     </LinearLayout>
-
-                </androidx.constraintlayout.widget.ConstraintLayout>
+                </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
 
+            <!-- Work / Rest / Pause row -->
             <com.google.android.material.card.MaterialCardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -260,38 +156,125 @@
                 android:layout_marginBottom="4dp">
 
                 <LinearLayout
-                    android:layout_width="273dp"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginStart="20dp"
-                    android:layout_marginTop="4dp"
-                    android:layout_marginEnd="20dp"
-                    android:layout_marginBottom="4dp"
-                    android:orientation="horizontal">
+                    android:layout_margin="12dp"
+                    android:orientation="horizontal"
+                    android:gravity="center">
 
-                    <com.google.android.material.textview.MaterialTextView
-                        android:id="@+id/com.google.android.material.textview.MaterialTextView7"
-                        android:layout_width="wrap_content"
+                    <LinearLayout
+                        android:layout_width="0dp"
                         android:layout_height="wrap_content"
-                        android:layout_gravity="center"
-                        android:layout_marginStart="0dp"
-                        android:layout_marginTop="0dp"
-                        android:text="Pause between sets"
-                        android:textSize="20sp" />
-
-                    <NumberPicker
-                        android:id="@+id/npPause"
-                        android:layout_width="125dp"
-                        android:layout_height="65dp"
-                        android:layout_gravity="center"
-                        android:layout_marginStart="20dp"
                         android:layout_weight="1"
-                        android:focusable="auto"
-                        android:scaleX="1.75"
-                        android:scaleY="1.75" />
+                        android:orientation="vertical"
+                        android:gravity="center">
+
+                        <com.google.android.material.textfield.TextInputLayout
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:hint="Work (s)">
+
+                            <com.google.android.material.textfield.TextInputEditText
+                                android:id="@+id/etWork"
+                                android:layout_width="80dp"
+                                android:layout_height="wrap_content"
+                                android:inputType="number"
+                                android:text="4"
+                                android:textAlignment="center"
+                                android:textSize="20sp" />
+                        </com.google.android.material.textfield.TextInputLayout>
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:orientation="vertical"
+                        android:gravity="center">
+
+                        <com.google.android.material.textfield.TextInputLayout
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:hint="Rest (s)">
+
+                            <com.google.android.material.textfield.TextInputEditText
+                                android:id="@+id/etRest"
+                                android:layout_width="80dp"
+                                android:layout_height="wrap_content"
+                                android:inputType="number"
+                                android:text="3"
+                                android:textAlignment="center"
+                                android:textSize="20sp" />
+                        </com.google.android.material.textfield.TextInputLayout>
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:orientation="vertical"
+                        android:gravity="center">
+
+                        <com.google.android.material.textfield.TextInputLayout
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:hint="Pause (s)">
+
+                            <com.google.android.material.textfield.TextInputEditText
+                                android:id="@+id/etPause"
+                                android:layout_width="80dp"
+                                android:layout_height="wrap_content"
+                                android:inputType="number"
+                                android:text="9"
+                                android:textAlignment="center"
+                                android:textSize="20sp" />
+                        </com.google.android.material.textfield.TextInputLayout>
+                    </LinearLayout>
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
 
-            <!--        <androidx.appcompat.widget.SwitchCompat-->
+            <!-- Countdown -->
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:layout_marginTop="4dp"
+                android:layout_marginEnd="16dp"
+                android:layout_marginBottom="4dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="12dp"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical">
+
+                    <com.google.android.material.textview.MaterialTextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginEnd="12dp"
+                        android:text="Countdown (s)"
+                        android:textSize="20sp" />
+
+                    <com.google.android.material.textfield.TextInputLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1">
+
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/etCountdown"
+                            android:layout_width="80dp"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="center"
+                            android:inputType="number"
+                            android:text="3"
+                            android:textAlignment="center"
+                            android:textSize="20sp" />
+                    </com.google.android.material.textfield.TextInputLayout>
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- Sound toggle -->
             <com.google.android.material.card.MaterialCardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -304,54 +287,12 @@
                     android:id="@+id/switchSound"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginStart="20dp"
-                    android:layout_marginTop="4dp"
-                    android:layout_marginEnd="20dp"
-                    android:layout_marginBottom="4dp"
-                    android:text="Sound
-    "
+                    android:layout_margin="12dp"
+                    android:text="Sound"
                     android:textSize="20sp" />
             </com.google.android.material.card.MaterialCardView>
 
-            <com.google.android.material.card.MaterialCardView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="16dp"
-                android:layout_marginTop="4dp"
-                android:layout_marginEnd="16dp"
-                android:layout_marginBottom="4dp">
-
-                <LinearLayout
-                    android:id="@+id/linearLayout3"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="20dp"
-                    android:layout_marginTop="4dp"
-                    android:layout_marginEnd="20dp"
-                    android:layout_marginBottom="4dp"
-                    android:orientation="horizontal">
-
-                    <com.google.android.material.textview.MaterialTextView
-                        android:id="@+id/com.google.android.material.textview.MaterialTextView8"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_gravity="center"
-                        android:text="Countdown before work"
-                        android:textSize="20sp" />
-
-                    <NumberPicker
-                        android:id="@+id/npCountdown"
-                        android:layout_width="125dp"
-                        android:layout_height="65dp"
-                        android:layout_gravity="center"
-                        android:layout_marginStart="20dp"
-                        android:layout_weight="1"
-                        android:focusable="auto"
-                        android:scaleX="1.7"
-                        android:scaleY="1.7" />
-                </LinearLayout>
-            </com.google.android.material.card.MaterialCardView>
-
+            <!-- Target Zone -->
             <com.google.android.material.card.MaterialCardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -363,79 +304,90 @@
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:layout_margin="12dp"
                     android:orientation="vertical">
 
-                    <!--            <androidx.appcompat.widget.SwitchCompat-->
-                    <com.google.android.material.switchmaterial.SwitchMaterial
-                        android:id="@+id/switchPlot"
+                    <com.google.android.material.textview.MaterialTextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_marginStart="20dp"
-                        android:layout_marginTop="4dp"
-                        android:layout_marginEnd="20dp"
                         android:layout_marginBottom="4dp"
-                        android:text="Plot target  "
+                        android:text="Target Zone (kg)"
                         android:textSize="20sp" />
 
                     <LinearLayout
-                        android:id="@+id/llPlot"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginStart="20dp"
-                        android:layout_marginEnd="20dp"
-                        android:layout_marginBottom="8dp"
-                        android:gravity="center_vertical"
                         android:orientation="horizontal"
-                        app:flow_verticalAlign="center">
+                        android:gravity="center">
 
-                        <com.google.android.material.textview.MaterialTextView
-                            android:id="@+id/com.google.android.material.textview.MaterialTextView13"
-                            android:layout_width="wrap_content"
+                        <LinearLayout
+                            android:layout_width="0dp"
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
-                            android:text="Min:"
-                            android:textSize="20sp"
-                            app:layout_constraintStart_toStartOf="parent"
-                            app:layout_constraintTop_toBottomOf="@+id/constraintLayout" />
+                            android:orientation="vertical"
+                            android:gravity="center">
 
-                        <NumberPicker
-                            android:id="@+id/npPlotMin"
-                            android:layout_width="wrap_content"
-                            android:layout_height="65dp"
-                            android:layout_gravity="center"
-                            android:layout_marginStart="20dp"
-                            android:layout_weight="1"
-                            android:focusable="auto"
-                            android:scaleX="1.75"
-                            android:scaleY="1.75"
-                            app:layout_constraintBottom_toBottomOf="@+id/com.google.android.material.textview.MaterialTextView8"
-                            app:layout_constraintStart_toEndOf="@+id/com.google.android.material.textview.MaterialTextView8"
-                            app:layout_constraintTop_toTopOf="@+id/com.google.android.material.textview.MaterialTextView8" />
+                            <com.google.android.material.textfield.TextInputLayout
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:hint="Target">
 
-                        <com.google.android.material.textview.MaterialTextView
-                            android:id="@+id/com.google.android.material.textview.MaterialTextView14"
-                            android:layout_width="wrap_content"
+                                <com.google.android.material.textfield.TextInputEditText
+                                    android:id="@+id/etTarget"
+                                    android:layout_width="80dp"
+                                    android:layout_height="wrap_content"
+                                    android:inputType="numberDecimal"
+                                    android:text="20"
+                                    android:textAlignment="center"
+                                    android:textSize="20sp" />
+                            </com.google.android.material.textfield.TextInputLayout>
+                        </LinearLayout>
+
+                        <LinearLayout
+                            android:layout_width="0dp"
                             android:layout_height="wrap_content"
-                            android:layout_gravity="center"
-                            android:layout_marginStart="40dp"
                             android:layout_weight="1"
-                            android:text="Max:"
-                            android:textSize="20sp"
-                            app:layout_constraintStart_toStartOf="parent"
-                            app:layout_constraintTop_toBottomOf="@+id/constraintLayout" />
+                            android:orientation="vertical"
+                            android:gravity="center">
 
-                        <NumberPicker
-                            android:id="@+id/npPlotMax"
-                            android:layout_width="wrap_content"
-                            android:layout_height="65dp"
-                            android:layout_marginStart="20dp"
+                            <com.google.android.material.textfield.TextInputLayout
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:hint="Min -">
+
+                                <com.google.android.material.textfield.TextInputEditText
+                                    android:id="@+id/etMarginMin"
+                                    android:layout_width="80dp"
+                                    android:layout_height="wrap_content"
+                                    android:inputType="numberDecimal"
+                                    android:text="5"
+                                    android:textAlignment="center"
+                                    android:textSize="20sp" />
+                            </com.google.android.material.textfield.TextInputLayout>
+                        </LinearLayout>
+
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
                             android:layout_weight="1"
-                            android:focusable="auto"
-                            android:scaleX="1.75"
-                            android:scaleY="1.75"
-                            app:layout_constraintBottom_toBottomOf="@+id/com.google.android.material.textview.MaterialTextView8"
-                            app:layout_constraintStart_toEndOf="@+id/com.google.android.material.textview.MaterialTextView8"
-                            app:layout_constraintTop_toTopOf="@+id/com.google.android.material.textview.MaterialTextView8" />
+                            android:orientation="vertical"
+                            android:gravity="center">
+
+                            <com.google.android.material.textfield.TextInputLayout
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:hint="Max +">
+
+                                <com.google.android.material.textfield.TextInputEditText
+                                    android:id="@+id/etMarginMax"
+                                    android:layout_width="80dp"
+                                    android:layout_height="wrap_content"
+                                    android:inputType="numberDecimal"
+                                    android:text="10"
+                                    android:textAlignment="center"
+                                    android:textSize="20sp" />
+                            </com.google.android.material.textfield.TextInputLayout>
+                        </LinearLayout>
                     </LinearLayout>
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>

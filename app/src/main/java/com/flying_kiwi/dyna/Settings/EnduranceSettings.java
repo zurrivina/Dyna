@@ -6,7 +6,6 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import androidx.fragment.app.Fragment;
-import androidx.preference.PreferenceFragmentCompat;
 
 import com.flying_kiwi.dyna.R;
 
@@ -20,12 +19,5 @@ public class EnduranceSettings extends Fragment {
         view = inflater.inflate(R.layout.endurance_settings_fragment,container, false);
 
         return view;
-    }
-
-    public static class SettingsFragment extends PreferenceFragmentCompat {
-        @Override
-        public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {
-            setPreferencesFromResource(R.xml.root_preferences, rootKey);
-        }
     }
 }

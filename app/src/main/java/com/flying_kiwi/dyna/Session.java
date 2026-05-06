@@ -5,9 +5,7 @@ import android.util.Log;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.Serializable;
-import java.sql.Time;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 public class Session implements Serializable {
@@ -45,22 +43,29 @@ public class Session implements Serializable {
     private int restTime;
     private int pauseTime;
     private int countdown;
+    private float targetWeight;
+    private float targetMarginMin;
+    private float targetMarginMax;
+    private boolean sound;
+
+    // Legacy fields kept for deserialization compatibility (v2 -> v3 migration)
     private boolean plotTarget;
     private int plotMin;
     private int plotMax;
-    private boolean sound;
+    private int minWorkThreshold;
+    private int maxWorkThreshold;
 
     private static final long serialVersionUID = 1779590375867446386L; //For deserialization, this was the original id before adding a versioning number for added fields
     private final int version;
 
     public Session(){
         weights = new ArrayList<>();
-        version = 2;
+        version = 3;
     }
     public Session(SessionType type) {
         this.sessionType = type;
         weights = new ArrayList<>();
-        version = 2;
+        version = 3;
     }
 
     public void addWeight(TimestampedWeight timestampedWeight){
@@ -127,16 +132,36 @@ public class Session implements Serializable {
         return pauseTime;
     }
 
-    public boolean isPlotTarget() {
-        return plotTarget;
+    public float getTargetWeight() {
+        return targetWeight;
+    }
+
+    public void setTargetWeight(float targetWeight) {
+        this.targetWeight = targetWeight;
+    }
+
+    public float getTargetMarginMin() {
+        return targetMarginMin;
+    }
+
+    public void setTargetMarginMin(float targetMarginMin) {
+        this.targetMarginMin = targetMarginMin;
+    }
+
+    public float getTargetMarginMax() {
+        return targetMarginMax;
+    }
+
+    public void setTargetMarginMax(float targetMarginMax) {
+        this.targetMarginMax = targetMarginMax;
     }
 
     public int getPlotMin() {
-        return plotMin;
+        return (int)(targetWeight - targetMarginMin);
     }
 
     public int getPlotMax() {
-        return plotMax;
+        return (int)(targetWeight + targetMarginMax);
     }
 
     public boolean isSound() {
@@ -166,18 +191,6 @@ public class Session implements Serializable {
         this.countdown = countdown;
     }
 
-    public void setPlotTarget(boolean plotTarget) {
-        this.plotTarget = plotTarget;
-    }
-
-    public void setPlotMin(int plotMin) {
-        this.plotMin = plotMin;
-    }
-
-    public void setPlotMax(int plotMax) {
-        this.plotMax = plotMax;
-    }
-
     public void setSound(boolean sound) {
         this.sound = sound;
     }
@@ -205,6 +218,13 @@ public class Session implements Serializable {
                     }
                     sessionMax = max;
                 case 2:
+                    // Migrate from v2 (plotMin/plotMax/minWorkThreshold/maxWorkThreshold) to v3 (targetWeight/targetMarginMin/targetMarginMax)
+                    float oldMin = minWorkThreshold > 0 ? minWorkThreshold : plotMin;
+                    float oldMax = maxWorkThreshold > 0 ? maxWorkThreshold : plotMax;
+                    targetWeight = (oldMin + oldMax) / 2f;
+                    targetMarginMin = targetWeight - oldMin;
+                    targetMarginMax = oldMax - targetWeight;
+                case 3:
                     //Current
                     break;
                 default:
