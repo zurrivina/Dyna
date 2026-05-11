@@ -275,6 +275,9 @@ public abstract class BaseLiveDataView extends Fragment {
         input.setHeight(height);
         int padding = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 20, getResources().getDisplayMetrics());
         input.setPadding(padding,0,padding,0);
+        String defaultName = "Measure_" + new java.text.SimpleDateFormat("yyyyMMddHHmmss", java.util.Locale.US).format(new java.util.Date());
+        input.setText(defaultName);
+        input.selectAll();
 
         new AlertDialog.Builder(requireContext())
                 .setTitle("Save Session")
