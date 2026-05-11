@@ -1,0 +1,17 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+    <!-- Top: light orange -->
+    <path android:fillColor="#FFF3E0" android:pathData="M 0,0 L 108,0 L 108,58 L 0,58 Z" />
+    <!-- Bottom: orange -->
+    <path android:fillColor="#BF360C" android:pathData="M 0,58 L 108,58 L 108,108 L 0,108 Z" />
+    <!-- Dark red-orange fingers -->
+    <path android:fillColor="#5D1400" android:pathData="M 68,38 L 76,38 L 76,68 L 68,76 Z" />
+    <path android:fillColor="#5D1400" android:pathData="M 56,32 L 64,32 L 64,68 L 56,76 Z" />
+    <path android:fillColor="#5D1400" android:pathData="M 44,32 L 52,32 L 52,68 L 44,76 Z" />
+    <path android:fillColor="#5D1400" android:pathData="M 32,42 L 40,42 L 40,68 L 32,76 Z" />
+    <!-- DEV badge -->
+    <path android:fillColor="#FFD600" android:pathData="M 88,4 L 98,14 L 88,24 L 78,14 Z" />
+</vector>
