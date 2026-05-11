@@ -5,7 +5,6 @@ import android.graphics.Color;
 import android.media.AudioManager;
 import android.media.ToneGenerator;
 import android.os.Bundle;
-import android.os.CountDownTimer;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -22,7 +21,7 @@ import java.util.List;
 public class RepeaterLiveData extends BaseLiveDataView {
     int setNum = 0;
     int repNum = 0;
-    int countdownLeft = 0;
+    private float countdownSec = 0;
     private ToneGenerator toneGen;
 
     // Phase types for the session timeline
@@ -107,15 +106,19 @@ public class RepeaterLiveData extends BaseLiveDataView {
         ((TextView) view.findViewById(R.id.txtCriticalCurrent)).setText(session.getLatest().toString());
         ((TextView) view.findViewById(R.id.txtCriticalRepNum)).setText((repNum + 1) + "/" + session.getNumReps());
         ((TextView) view.findViewById(R.id.txtRepeaterSetNum)).setText((setNum + 1) + "/" + session.getNumSets());
-        ((TextView) view.findViewById(R.id.txtCountdown)).setText(String.valueOf(countdownLeft));
-        if (isWorkPhase) {
-            ((TextView) view.findViewById(R.id.txtPullRest)).setText("Pull");
-            TextView txtWorkTime = view.findViewById(R.id.txtWorkTime);
-            int requiredWorkTime = session.getWorkTime();
-            txtWorkTime.setText(String.format("%ds/%ds", accumulatedWorkTime, requiredWorkTime));
+        if (isSessionDone) {
+            ((MaterialTextView) view.findViewById(R.id.txtCountdown)).setText("Finished");
+            ((TextView) view.findViewById(R.id.txtPullRest)).setText("Done");
         } else {
-            ((TextView) view.findViewById(R.id.txtPullRest)).setText("Rest");
-            ((TextView) view.findViewById(R.id.txtWorkTime)).setText("0/" + session.getWorkTime() + "s");
+            ((TextView) view.findViewById(R.id.txtCountdown)).setText(String.format("%.1f", countdownSec));
+            if (isWorkPhase) {
+                ((TextView) view.findViewById(R.id.txtPullRest)).setText("Pull");
+                TextView txtWorkTime = view.findViewById(R.id.txtWorkTime);
+                txtWorkTime.setText(String.format("%.1fs/%ds", accumulatedWorkMs / 1000f, session.getWorkTime()));
+            } else {
+                ((TextView) view.findViewById(R.id.txtPullRest)).setText("Rest");
+                ((TextView) view.findViewById(R.id.txtWorkTime)).setText("0/" + session.getWorkTime() + "s");
+            }
         }
     }
 
@@ -124,21 +127,22 @@ public class RepeaterLiveData extends BaseLiveDataView {
         return R.id.btnRepeaterSave;
     }
 
-    int elapsedSeconds = 0;
+    int elapsedMs = 0;
     boolean isWorkPhase = false;
-    CountDownTimer countDownTimer;
-    private int accumulatedWorkTime = 0;
-    private long lastTickTimestamp = 0;
-    private boolean isTransitioningToRest = false;
+    private android.os.Handler tickHandler;
+    private int accumulatedWorkMs = 0;
+    private long collectionStartTime = 0;
+    private boolean isSessionDone = false;
+    private boolean warningBeepsPlayed = false;
 
     private void startTimer() {
-        elapsedSeconds = 0;
+        elapsedMs = 0;
         setNum = 0;
         repNum = 0;
-        accumulatedWorkTime = 0;
+        accumulatedWorkMs = 0;
         isWorkPhase = false;
-        isTransitioningToRest = false;
-        lastTickTimestamp = System.currentTimeMillis();
+        isSessionDone = false;
+        warningBeepsPlayed = false;
 
         // Build phase timeline
         final List<Phase> phases = new ArrayList<>();
@@ -157,132 +161,108 @@ public class RepeaterLiveData extends BaseLiveDataView {
         }
         phases.add(new Phase(PhaseType.DONE, 0, 0, 0));
 
-        int totalDuration = 0;
-        for (Phase p : phases) {
-            totalDuration += p.durationSec;
-        }
+        tickHandler = new android.os.Handler(android.os.Looper.getMainLooper());
+        final int[] phaseIndex = {0};
 
-        countDownTimer = new CountDownTimer(totalDuration * 1000L, 1000) {
-            int phaseIndex = 0;
-
+        tickHandler.post(new Runnable() {
             @Override
-            public void onTick(long millisUntilFinished) {
-                long now = System.currentTimeMillis();
-                long deltaMs = now - lastTickTimestamp;
-                lastTickTimestamp = now;
+            public void run() {
+                if (tickHandler == null) return;
+                tickHandler.postDelayed(this, 100);
 
-                Phase currentPhase = phases.get(phaseIndex);
-                int phaseStartSec = 0;
-                for (int i = 0; i < phaseIndex; i++) {
-                    phaseStartSec += phases.get(i).durationSec;
+                Phase currentPhase = phases.get(phaseIndex[0]);
+                int phaseStartMs = 0;
+                for (int i = 0; i < phaseIndex[0]; i++) {
+                    phaseStartMs += phases.get(i).durationSec * 1000;
                 }
-                int phaseElapsed = elapsedSeconds - phaseStartSec;
 
-                if (phaseElapsed >= currentPhase.durationSec && currentPhase.type != PhaseType.DONE) {
-                    phaseIndex++;
-                    currentPhase = phases.get(phaseIndex);
+                // During work phase, only advance time when pulling force >= min margin
+                if (currentPhase.type == PhaseType.WORK) {
+                    com.flying_kiwi.dyna.TimestampedWeight latest = session.getLatest();
+                    float minThreshold = session.getTargetWeight() - session.getTargetMarginMin();
+                    if (latest.getWeight() >= minThreshold && latest.getTimestamp() >= collectionStartTime) {
+                        elapsedMs += 100;
+                    }
+                    accumulatedWorkMs = elapsedMs - phaseStartMs;
+                } else if (currentPhase.type != PhaseType.DONE) {
+                    elapsedMs += 100;
+                }
+
+                int phaseElapsed = elapsedMs - phaseStartMs;
+
+                if (phaseElapsed >= currentPhase.durationSec * 1000 && currentPhase.type != PhaseType.DONE) {
+                    phaseIndex[0]++;
+                    currentPhase = phases.get(phaseIndex[0]);
                     playTone();
 
-                    // Update state for new phase
                     switch (currentPhase.type) {
                         case WORK:
                             isWorkPhase = true;
-                            isTransitioningToRest = false;
                             setNum = currentPhase.setNum;
                             repNum = currentPhase.repNum;
-                            accumulatedWorkTime = 0;
+                            accumulatedWorkMs = 0;
+                            warningBeepsPlayed = false;
+                            collectionStartTime = System.currentTimeMillis();
                             dc.startCollecting();
                             break;
                         case REST:
                         case PAUSE:
                             isWorkPhase = false;
-                            isTransitioningToRest = false;
-                            accumulatedWorkTime = 0;
-                            // Delay stopCollecting to capture transition curve
+                            accumulatedWorkMs = 0;
                             new android.os.Handler(android.os.Looper.getMainLooper()).postDelayed(() -> {
                                 if (!isWorkPhase) dc.stopCollecting();
                             }, 1500);
                             break;
                         case COUNTDOWN:
                             isWorkPhase = false;
-                            isTransitioningToRest = false;
-                            accumulatedWorkTime = 0;
+                            accumulatedWorkMs = 0;
                             dc.stopCollecting();
                             break;
                         case DONE:
                             isWorkPhase = false;
-                            isTransitioningToRest = false;
+                            isSessionDone = true;
+                            accumulatedWorkMs = 0;
                             dc.stopScanning();
+                            if (session.isSound() && toneGen != null) {
+                                toneGen.startTone(ToneGenerator.TONE_PROP_BEEP);
+                            }
+                            tickHandler.removeCallbacksAndMessages(null);
+                            tickHandler = null;
                             break;
                     }
                 }
 
-                // During work phase, only advance time when actually pulling
-                if (currentPhase.type == PhaseType.WORK && !isTransitioningToRest) {
-                    if (deltaMs >= 900) {
-                        float latestWeight = session.getLatest().getWeight();
-                        float minThreshold = session.getTargetWeight() - session.getTargetMarginMin();
-                        if (latestWeight >= minThreshold) {
-                            elapsedSeconds++;
-                            accumulatedWorkTime++;
-                            int requiredWorkTime = session.getWorkTime();
-                            TextView txtWorkTime = view.findViewById(R.id.txtWorkTime);
-                            txtWorkTime.setText(String.format("%ds/%ds", accumulatedWorkTime, requiredWorkTime));
-
-                            // If accumulated work time reaches required work time, force transition
-                            if (accumulatedWorkTime >= requiredWorkTime) {
-                                isTransitioningToRest = true;
-                                // Advance elapsed to trigger phase transition on next tick
-                                int ps = 0;
-                                for (int i = 0; i <= phaseIndex; i++) {
-                                    ps += phases.get(i).durationSec;
-                                }
-                                elapsedSeconds = ps;
-                            }
-                        }
-                    }
-                } else {
-                    // During countdown/rest/pause, time always advances
-                    if (deltaMs >= 900) {
-                        elapsedSeconds++;
-                    }
-                }
-
                 // Update countdown display
-                int phaseStartSec2 = 0;
-                for (int i = 0; i < phaseIndex; i++) {
-                    phaseStartSec2 += phases.get(i).durationSec;
-                }
-                countdownLeft = currentPhase.durationSec - (elapsedSeconds - phaseStartSec2);
-                if (countdownLeft < 0) countdownLeft = 0;
+                countdownSec = (currentPhase.durationSec * 1000 - (elapsedMs - phaseStartMs)) / 1000f;
+                if (countdownSec < 0) countdownSec = 0;
 
-                // Color countdown red when low
-                if (countdownLeft <= 3 && countdownLeft > 0) {
+                // Warning beeps on last second of pull
+                if (currentPhase.type == PhaseType.WORK && countdownSec <= 1.0 && countdownSec > 0 && !warningBeepsPlayed) {
+                    warningBeepsPlayed = true;
+                    if (session.isSound() && toneGen != null) {
+                        toneGen.startTone(ToneGenerator.TONE_PROP_BEEP, 200);
+                        new android.os.Handler(android.os.Looper.getMainLooper()).postDelayed(() -> {
+                            if (toneGen != null) toneGen.startTone(ToneGenerator.TONE_PROP_BEEP, 200);
+                        }, 250);
+                    }
+                }
+
+                if (countdownSec <= 3 && countdownSec > 0) {
                     ((MaterialTextView) view.findViewById(R.id.txtCountdown)).setTextColor(Color.RED);
                 } else {
                     int nightMode = getResources().getConfiguration().uiMode & Configuration.UI_MODE_NIGHT_MASK;
                     boolean isDarkMode = (nightMode == Configuration.UI_MODE_NIGHT_YES);
                     ((MaterialTextView) view.findViewById(R.id.txtCountdown)).setTextColor(isDarkMode ? Color.WHITE : Color.BLACK);
                 }
-
                 updateStats();
             }
-
-            @Override
-            public void onFinish() {
-                dc.stopScanning();
-                isWorkPhase = false;
-                if (session.isSound() && toneGen != null) {
-                    toneGen.startTone(ToneGenerator.TONE_PROP_BEEP);
-                }
-            }
-        }.start();
+        });
     }
 
     private void stopTimer() {
-        if (countDownTimer != null) {
-            countDownTimer.cancel();
-            countDownTimer = null;
+        if (tickHandler != null) {
+            tickHandler.removeCallbacksAndMessages(null);
+            tickHandler = null;
         }
         dc.stopScanning();
         isWorkPhase = false;
@@ -295,9 +275,9 @@ public class RepeaterLiveData extends BaseLiveDataView {
             toneGen.release();
             toneGen = null;
         }
-        if (countDownTimer != null) {
-            countDownTimer.cancel();
-            countDownTimer = null;
+        if (tickHandler != null) {
+            tickHandler.removeCallbacksAndMessages(null);
+            tickHandler = null;
         }
         if (dc != null) {
             dc.stopScanning();
