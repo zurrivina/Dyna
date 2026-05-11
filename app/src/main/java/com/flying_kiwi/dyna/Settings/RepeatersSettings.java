@@ -38,6 +38,7 @@ public class RepeatersSettings extends Fragment {
         view = inflater.inflate(R.layout.repeaters_settings_fragment, container, false);
 
         loadPresetOptions();
+        setupAutoSelectText();
 
         view.findViewById(R.id.btnRepeaterStart).setOnClickListener(v -> {
             Bundle bundle = new Bundle();
@@ -142,6 +143,15 @@ public class RepeatersSettings extends Fragment {
                 })
                 .setNegativeButton("Cancel", null)
                 .show();
+    }
+
+    private void setupAutoSelectText() {
+        int[] ids = {R.id.etSets, R.id.etReps, R.id.etWork, R.id.etRest, R.id.etPause, R.id.etCountdown, R.id.etTarget, R.id.etMarginMin, R.id.etMarginMax};
+        for (int id : ids) {
+            ((TextInputEditText) view.findViewById(id)).setOnFocusChangeListener((v, hasFocus) -> {
+                if (hasFocus) ((EditText) v).selectAll();
+            });
+        }
     }
 
     public Session createSession() {
