@@ -158,7 +158,28 @@ public class FileManager {
 
     }
     public void deleteProfile(Profile p){
+        // Delete the profile file
+        File profileFile = new File(new File(context.getFilesDir(), "profile"), p.getName());
+        if (profileFile.exists()) {
+            profileFile.delete();
+        }
+        // Delete the user's session data directory
+        File userDirectory = new File(context.getFilesDir(), p.getName());
+        if (userDirectory.exists()) {
+            deleteRecursive(userDirectory);
+        }
+    }
 
+    private void deleteRecursive(File file) {
+        if (file.isDirectory()) {
+            File[] children = file.listFiles();
+            if (children != null) {
+                for (File child : children) {
+                    deleteRecursive(child);
+                }
+            }
+        }
+        file.delete();
     }
     public void exportSessionToCSV(Session s){
         StringBuilder csv = new StringBuilder();
